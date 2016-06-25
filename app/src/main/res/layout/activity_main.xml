@@ -16,60 +16,62 @@
             android:layout_weight="1">
 
             <Button
-                android:background="#000"
                 android:id="@+id/Button_show"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:background="#000"
                 android:onClick="onClick"
                 android:text="IMEI MAC" />
 
             <Button
-                android:background="#000"
                 android:id="@+id/Button_fadein"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:background="#000"
                 android:onClick="onClick"
                 android:text="fade" />
 
             <Button
-                android:background="#000"
                 android:id="@+id/Button_moveright"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:background="#000"
                 android:onClick="onClick"
                 android:text="move" />
 
             <Button
-                android:background="#000"
                 android:id="@+id/Button_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:background="#000"
                 android:onClick="onClick"
                 android:text="video" />
+
             <Button
-                android:background="#000"
                 android:id="@+id/Button_test"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:background="#000"
                 android:onClick="onClick"
                 android:text="test" />
+
             <Button
-                android:background="#000"
                 android:id="@+id/Button_exit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:background="#000"
                 android:onClick="onClick"
                 android:text="exit" />
 
@@ -82,14 +84,14 @@
         android:layout_gravity="center">
 
         <myvideoview.MyVideo
-            android:id="@+id/myVideoView1"
+            android:id="@+id/myVideoView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:visibility="gone" />
 
         <ImageView
-            android:id="@+id/myImageView1"
+            android:id="@+id/myImageView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_centerHorizontal="true"
@@ -97,7 +99,13 @@
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
-            android:src="@drawable/no1" />
+            android:src="@drawable/no1"
+            android:visibility="gone" />
 
+        <pager.AutoScrollViewPager
+            android:id="@+id/myViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
     </TableRow>
 </RelativeLayout>

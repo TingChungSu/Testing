@@ -1,17 +1,13 @@
 package com.example.test;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Build;
-import android.os.Environment;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,18 +21,22 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.DataOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import myvideoview.MyVideo;
+import myvideoview.*;
+import pager.*;
 
 public class MainActivity extends AppCompatActivity {
     private int[] resourceID;
     private String[] picPath;
     public int picNum;
     private ImageView myImage;
-    private MyVideo MyVideo;
+    private AutoScrollViewPager myViewPager;
+    private MyVideo myVideo;
     private boolean isVideo;
+    private AutoScrollViewPager myPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         Display[] displays = dm.getDisplays();
         for(Display display : displays){
             if(display.equals(dm.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION))){
-
             }
         }
 */
@@ -58,9 +57,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         isVideo = false;
-
-        myImage = (ImageView) findViewById(R.id.myImageView1);
-        MyVideo = (MyVideo) findViewById(R.id.myVideoView1);
+        myImage = (ImageView) findViewById(R.id.myImageView);
+        myVideo = (MyVideo) findViewById(R.id.myVideoView);
         picNum = 0;
         resourceID = new int[]{R.drawable.pic1, R.drawable.pic2, R.drawable.pic3, R.drawable.pic4, R.drawable.pic5,
                 R.drawable.no2, R.drawable.no3, R.drawable.no4, R.drawable.no5};
@@ -72,7 +70,22 @@ public class MainActivity extends AppCompatActivity {
                 "/sdcard/Download/RivaGreen/to-11.jpg", "/sdcard/Download/RivaGreen/to-12.jpg",
                 "/sdcard/Download/RivaGreen/to-13.jpg", "/sdcard/Download/RivaGreen/to-14.jpg",  };
 
+
+        myPager = (AutoScrollViewPager) findViewById(R.id.myViewPager);
+        myPager.setAdapter(new MyPagerAdapter(this,getList()));
+        myPager.setCurrentItem(0);
+        myPager.setInterval(5000);
+        myPager.startAutoScroll();
     }
+    private List<String> getList(){
+        List<String> list = new ArrayList<String>();
+        for(String path : picPath){
+            //list.add("file://"+path);
+            list.add(path);
+        }
+        return list;
+    }
+
 
     @Override
     protected void onResume() {
@@ -122,14 +135,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchToVideo() {
         isVideo = true;
-        MyVideo.setVisibility(View.VISIBLE);
+        myVideo.setVisibility(View.VISIBLE);
         myImage.setVisibility(View.GONE);
     }
 
     private void switchToImage() {
         isVideo = false;
         myImage.setVisibility(View.VISIBLE);
-        MyVideo.setVisibility(View.GONE);
+        myVideo.setVisibility(View.GONE);
     }
 
     private void setSDCardPicture(ImageView iv, String picPath) {
@@ -164,17 +177,6 @@ public class MainActivity extends AppCompatActivity {
         myImage.startAnimation(am);
     }
 
-    private static Bitmap getBitmapFromSDCard(String file) {
-        try {
-            String sd = Environment.getExternalStorageDirectory().toString();
-            Bitmap bitmap = BitmapFactory.decodeFile(sd + "/" + file);
-            return bitmap;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private void imageMove() {
         Animation am = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_midtoright);
         am.setAnimationListener(new Animation.AnimationListener() {
@@ -198,18 +200,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setVideo() {
-        String path = "/sdcard/Download/RivaGreen/done.mpg";
+        String path = "/sdcard/Download/Demo_video_ACME/Asics/Asics_left.mp4";
         File file = new File(path);
         if (file.exists()) {
-            MyVideo.setVideoPath(file.getAbsolutePath());
-            MyVideo.start();
+            myVideo.setVideoPath(file.getAbsolutePath());
+            myVideo.start();
+            switchToVideo();
         } else Toast.makeText(this, path + "\nfile not exists! ", Toast.LENGTH_SHORT).show();
 
-        path = "android.resource://" + getPackageName() + "/" + R.raw.thelittleprince;
-        switchToVideo();
 
-        Uri uri = Uri.parse(path);
         /*
+        path = "android.resource://" + getPackageName() + "/" + R.raw.thelittleprince;
+        Uri uri = Uri.parse(path);
         File file = new File(path);
         if (!file.exists()) {
         Toast.makeText(this, "file not exists! " + path, Toast.LENGTH_SHORT).show();
@@ -235,7 +237,8 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.Button_fadein) {
                 imageFadeIn();
             } else if (id == R.id.Button_moveright) {
-                imageMove();
+                myImage.setVisibility(View.GONE);
+                myVideo.setVisibility(View.GONE);
             } else if (id == R.id.Button_test) {
                 showScreen();
             } else if (id == R.id.Button_exit) {
