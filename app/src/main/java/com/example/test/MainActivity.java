@@ -8,6 +8,8 @@ import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,26 +32,44 @@ import myvideoview.*;
 import pager.*;
 
 public class MainActivity extends AppCompatActivity {
+    private static int pageInterval = 5000;
     private int[] resourceID;
     private String[] picPath;
+    private String[] videoPath;
     public int picNum;
     private ImageView myImage;
-    private AutoScrollViewPager myViewPager;
     private MyVideo myVideo;
     private boolean isVideo;
-    private AutoScrollViewPager myPager;
+    private static AutoScrollViewPager myPager;
+    private static Handler handler;
+
+    private PlayList myPlayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*
-        DisplayManager dm = (DisplayManager) getSystemService(DISPLAY_SERVICE);
-        Display[] displays = dm.getDisplays();
-        for(Display display : displays){
-            if(display.equals(dm.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION))){
-            }
+
+        picNum = 0;
+        resourceID = new int[]{R.drawable.pic1, R.drawable.pic2, R.drawable.pic3, R.drawable.pic4, R.drawable.pic5,
+                R.drawable.no2, R.drawable.no3, R.drawable.no4, R.drawable.no5};
+        picPath = new String[]{"/sdcard/Download/RivaGreen/to-01.jpg", "/sdcard/Download/RivaGreen/to-02.jpg",
+                "/sdcard/Download/RivaGreen/to-03.jpg", "/sdcard/Download/RivaGreen/to-04.jpg",
+                "/sdcard/Download/RivaGreen/to-05.jpg", "/sdcard/Download/RivaGreen/to-06.jpg",
+                "/sdcard/Download/RivaGreen/to-07.jpg", "/sdcard/Download/RivaGreen/to-08.jpg",
+                "/sdcard/Download/RivaGreen/to-09.jpg", "/sdcard/Download/RivaGreen/to-10.jpg",
+                "/sdcard/Download/RivaGreen/to-11.jpg", "/sdcard/Download/RivaGreen/to-12.jpg",
+                "/sdcard/Download/RivaGreen/to-13.jpg", "/sdcard/Download/RivaGreen/to-14.jpg",};
+        videoPath = new String[]{"/sdcard/Download/Demo_video_ACME/Asics/Asics_left.mp4", "/sdcard/Download/Demo_video_ACME/Asics/Asics_right.mp4"};
+
+        myPlayList = new PlayList();
+        for (String path : videoPath) {
+            SourceData tmp = new SourceData("video", path);
         }
-*/
+        for (String path : picPath) {
+            SourceData tmp = new SourceData("image", path);
+        }
+
+    // set full screen with no title
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -59,27 +80,20 @@ public class MainActivity extends AppCompatActivity {
         isVideo = false;
         myImage = (ImageView) findViewById(R.id.myImageView);
         myVideo = (MyVideo) findViewById(R.id.myVideoView);
-        picNum = 0;
-        resourceID = new int[]{R.drawable.pic1, R.drawable.pic2, R.drawable.pic3, R.drawable.pic4, R.drawable.pic5,
-                R.drawable.no2, R.drawable.no3, R.drawable.no4, R.drawable.no5};
-        picPath = new String[]{"/sdcard/Download/RivaGreen/to-01.jpg", "/sdcard/Download/RivaGreen/to-02.jpg",
-                "/sdcard/Download/RivaGreen/to-03.jpg", "/sdcard/Download/RivaGreen/to-04.jpg",
-                "/sdcard/Download/RivaGreen/to-05.jpg", "/sdcard/Download/RivaGreen/to-06.jpg",
-                "/sdcard/Download/RivaGreen/to-07.jpg", "/sdcard/Download/RivaGreen/to-08.jpg",
-                "/sdcard/Download/RivaGreen/to-09.jpg", "/sdcard/Download/RivaGreen/to-10.jpg",
-                "/sdcard/Download/RivaGreen/to-11.jpg", "/sdcard/Download/RivaGreen/to-12.jpg",
-                "/sdcard/Download/RivaGreen/to-13.jpg", "/sdcard/Download/RivaGreen/to-14.jpg",  };
 
-
+    // setAutoScroll
         myPager = (AutoScrollViewPager) findViewById(R.id.myViewPager);
-        myPager.setAdapter(new MyPagerAdapter(this,getList()));
+        handler = new MyHandler(myPager);
+        myPager.setAdapter(new MyPagerAdapter(this, getList()));
         myPager.setCurrentItem(0);
-        myPager.setInterval(5000);
-        myPager.startAutoScroll();
+        myPager.setInterval(pageInterval);
+        MainActivity.sendMessage(0 ,pageInterval + myPager.getScroller().getDuration());
     }
-    private List<String> getList(){
+
+
+    private List<String> getList() {
         List<String> list = new ArrayList<String>();
-        for(String path : picPath){
+        for (String path : picPath) {
             //list.add("file://"+path);
             list.add(path);
         }
@@ -220,6 +234,41 @@ public class MainActivity extends AppCompatActivity {
         //MyVideo.setVideoURI(uri);
         //MyVideo.start();
     }
+
+
+    private static class MyHandler extends Handler {
+
+        private final WeakReference<AutoScrollViewPager> autoScrollViewPager;
+
+        public MyHandler(AutoScrollViewPager autoScrollViewPager) {
+            this.autoScrollViewPager = new WeakReference<AutoScrollViewPager>(autoScrollViewPager);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what) {
+                case 0:
+                    AutoScrollViewPager pager = this.autoScrollViewPager.get();
+                    if (pager != null) {
+                        myPager.getScroller().setScrollDurationFactor(1);
+                        myPager.scrollOnce();
+                        myPager.getScroller().setScrollDurationFactor(1);
+                        //MainActivity.sendMessage(pageInterval + pager.getScroller().getDuration());
+                    }
+                default:
+                    break;
+            }
+        }
+    }
+
+    private static void sendMessage(int msg, long delayTimeInMills) {
+        /** remove messages before, keeps one message is running at most **/
+        handler.removeMessages(msg);
+        handler.sendEmptyMessageDelayed(msg, delayTimeInMills);
+    }
+
 
     private void fuckOff() {
         android.os.Process.killProcess(android.os.Process.myPid());

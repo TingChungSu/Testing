@@ -15,11 +15,10 @@ public class SourceData {
     private String strFileType;
     private int screenNum;
     private String StrPath;
-    private
 
     //dataType: video && image
     //num: screennum 0/1
-    SourceData(String dataType, String path) {
+    public SourceData(String dataType, String path) {
         if (dataType.trim().toLowerCase().equals("video"))
             this.strFileType = "video";
         else

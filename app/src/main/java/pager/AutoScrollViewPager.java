@@ -71,6 +71,10 @@ public class AutoScrollViewPager extends ViewPager {
 
     public static final int        SCROLL_WHAT                 = 0;
 
+    public MyScroller getScroller(){
+        return scroller;
+    };
+
     public AutoScrollViewPager(Context paramContext) {
         super(paramContext);
         init();

@@ -44,6 +44,6 @@ public class MyScroller extends Scroller {
 
     @Override
     public void startScroll(int startX, int startY, int dx, int dy, int duration) {
-        super.startScroll(startX, startY, dx, dy, (int)(duration * scrollFactor * 10));
+        super.startScroll(startX, startY, dx, dy, (int)(duration * scrollFactor * scrollSpeed));
     }
 }
