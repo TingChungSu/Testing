@@ -8,10 +8,13 @@ import java.util.List;
  */
 public class PlayList {
 
-    static public List<SourceData> myList = null;
+    static private List<SourceData> myList = null;
 
     public PlayList() {
         myList = new ArrayList<>();
+    }
+    public List<SourceData> getList(){
+        return myList;
     }
 
     public void addToBot(SourceData data) {

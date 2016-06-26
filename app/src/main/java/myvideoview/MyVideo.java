@@ -2,6 +2,7 @@ package myvideoview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.VideoView;
 
 /**
@@ -22,6 +23,11 @@ public class MyVideo extends VideoView {
     public MyVideo(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         // TODO Auto-generated constructor stub
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev){
+        return true;
     }
 
     //重點在此，override這個 function 才可以正常滿版!

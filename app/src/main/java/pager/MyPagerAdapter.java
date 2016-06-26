@@ -4,6 +4,7 @@ package pager;
  * Created by 鼎鈞 on 2016/6/25.
  */
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,25 +16,48 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.VideoView;
+
+import com.example.test.R;
+
+import myvideoview.PlayList;
+import myvideoview.SourceData;
 
 public class MyPagerAdapter extends PagerAdapter {
 
     private List<View> mList;
 
-    public MyPagerAdapter(Context context, List<String> mPaths) {
+    public MyPagerAdapter(Context context, PlayList myPlayList) {
         mList = new ArrayList<View>();
+        List<SourceData> listData = myPlayList.getList();
 
         LinearLayout.LayoutParams mParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
-        for (int i = 0; i < mPaths.size(); i++) {
+        for (SourceData data: listData) {
             ImageView mImageView = new ImageView(context);
+            if(data.isImage()){
+                Bitmap bitmap = BitmapFactory.decodeFile(data.getPath());
+                mImageView.setImageBitmap(bitmap);
+                mImageView.setLayoutParams(mParams);
+                mList.add(mImageView);
+            }else if(data.isVedio()){
+                mImageView.setImageResource(R.drawable.no1);
+                mList.add(mImageView);
+                /*
+                String path = data.getPath();
+                File file = new File(path);
+                if (file.exists()) {
+                    VideoView mVideoView = new VideoView(context);
+                    mVideoView.setVideoPath(file.getAbsolutePath());
+                    mList.add(mVideoView);
+                    //mVideoView.start();
+                    //switchToVideo();
 
-            Bitmap bitmap = BitmapFactory.decodeFile(mPaths.get(i));
-            mImageView.setImageBitmap(bitmap);
-            mImageView.setLayoutParams(mParams);
+                }
+                */
+            }
             //mImageView.setBackgroundResource(list.get(i));
-            mList.add(mImageView);
         }
     }
 

@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
+import android.media.MediaPlayer;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -32,7 +34,7 @@ import myvideoview.*;
 import pager.*;
 
 public class MainActivity extends AppCompatActivity {
-    private static int pageInterval = 5000;
+    private static int pageInterval = 3000;
     private int[] resourceID;
     private String[] picPath;
     private String[] videoPath;
@@ -43,33 +45,39 @@ public class MainActivity extends AppCompatActivity {
     private static AutoScrollViewPager myPager;
     private static Handler handler;
 
-    private PlayList myPlayList;
+    public static PlayList myPlayList;
+    public static int sourceNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        sourceNum = 0;
         picNum = 0;
         resourceID = new int[]{R.drawable.pic1, R.drawable.pic2, R.drawable.pic3, R.drawable.pic4, R.drawable.pic5,
                 R.drawable.no2, R.drawable.no3, R.drawable.no4, R.drawable.no5};
         picPath = new String[]{"/sdcard/Download/RivaGreen/to-01.jpg", "/sdcard/Download/RivaGreen/to-02.jpg",
-                "/sdcard/Download/RivaGreen/to-03.jpg", "/sdcard/Download/RivaGreen/to-04.jpg",
+                "/sdcard/Download/RivaGreen/to-03.jpg", "/sdcard/Download/RivaGreen/to-04.jpg"};/*,
                 "/sdcard/Download/RivaGreen/to-05.jpg", "/sdcard/Download/RivaGreen/to-06.jpg",
                 "/sdcard/Download/RivaGreen/to-07.jpg", "/sdcard/Download/RivaGreen/to-08.jpg",
                 "/sdcard/Download/RivaGreen/to-09.jpg", "/sdcard/Download/RivaGreen/to-10.jpg",
                 "/sdcard/Download/RivaGreen/to-11.jpg", "/sdcard/Download/RivaGreen/to-12.jpg",
-                "/sdcard/Download/RivaGreen/to-13.jpg", "/sdcard/Download/RivaGreen/to-14.jpg",};
-        videoPath = new String[]{"/sdcard/Download/Demo_video_ACME/Asics/Asics_left.mp4", "/sdcard/Download/Demo_video_ACME/Asics/Asics_right.mp4"};
+                "/sdcard/Download/RivaGreen/to-13.jpg", "/sdcard/Download/RivaGreen/to-14.jpg"};*/
+        videoPath = new String[]{"/sdcard/Download/Demo_video_ACME/MUJI/muji01.avi", "/sdcard/Download/Demo_video_ACME/MUJI/muji02.avi"};
 
         myPlayList = new PlayList();
+
         for (String path : videoPath) {
-            SourceData tmp = new SourceData("video", path);
-        }
-        for (String path : picPath) {
-            SourceData tmp = new SourceData("image", path);
+            SourceData data = new SourceData("video", path);
+            myPlayList.addToBot(data);
         }
 
-    // set full screen with no title
+        for (String path : picPath) {
+            SourceData data = new SourceData("image", path);
+            myPlayList.addToBot(data);
+        }
+
+
+        // set full screen with no title
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -81,23 +89,13 @@ public class MainActivity extends AppCompatActivity {
         myImage = (ImageView) findViewById(R.id.myImageView);
         myVideo = (MyVideo) findViewById(R.id.myVideoView);
 
-    // setAutoScroll
+        // setAutoScroll
         myPager = (AutoScrollViewPager) findViewById(R.id.myViewPager);
         handler = new MyHandler(myPager);
-        myPager.setAdapter(new MyPagerAdapter(this, getList()));
+        myPager.setAdapter(new MyPagerAdapter(this, myPlayList));
         myPager.setCurrentItem(0);
         myPager.setInterval(pageInterval);
-        MainActivity.sendMessage(0 ,pageInterval + myPager.getScroller().getDuration());
-    }
-
-
-    private List<String> getList() {
-        List<String> list = new ArrayList<String>();
-        for (String path : picPath) {
-            //list.add("file://"+path);
-            list.add(path);
-        }
-        return list;
+        MainActivity.sendMessage(0, 0);
     }
 
 
@@ -150,6 +148,14 @@ public class MainActivity extends AppCompatActivity {
     private void switchToVideo() {
         isVideo = true;
         myVideo.setVisibility(View.VISIBLE);
+        myPager.setVisibility(View.GONE);
+        myImage.setVisibility(View.GONE);
+    }
+
+    private void switchToPager() {
+        isVideo = false;
+        myVideo.setVisibility(View.GONE);
+        myPager.setVisibility(View.VISIBLE);
         myImage.setVisibility(View.GONE);
     }
 
@@ -213,30 +219,24 @@ public class MainActivity extends AppCompatActivity {
         myImage.startAnimation(am);
     }
 
-    private void setVideo() {
-        String path = "/sdcard/Download/Demo_video_ACME/Asics/Asics_left.mp4";
+    private void setVideo(String path) {
+        //String path = "/sdcard/Download/Demo_video_ACME/Asics/Asics_left.mp4";
         File file = new File(path);
         if (file.exists()) {
             myVideo.setVideoPath(file.getAbsolutePath());
             myVideo.start();
+            myVideo.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                public void onCompletion(MediaPlayer mp) {
+                    switchToPager();
+                    MainActivity.sendMessage(1, 0);
+                }
+            });
             switchToVideo();
         } else Toast.makeText(this, path + "\nfile not exists! ", Toast.LENGTH_SHORT).show();
-
-
-        /*
-        path = "android.resource://" + getPackageName() + "/" + R.raw.thelittleprince;
-        Uri uri = Uri.parse(path);
-        File file = new File(path);
-        if (!file.exists()) {
-        Toast.makeText(this, "file not exists! " + path, Toast.LENGTH_SHORT).show();
-        }*/
-
-        //MyVideo.setVideoURI(uri);
-        //MyVideo.start();
     }
 
 
-    private static class MyHandler extends Handler {
+    private class MyHandler extends Handler {
 
         private final WeakReference<AutoScrollViewPager> autoScrollViewPager;
 
@@ -249,14 +249,30 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
 
             switch (msg.what) {
-                case 0:
+                case 0:// initial case
+                    if (myPlayList.getList().get(sourceNum).isVedio()) {
+                        setVideo(myPlayList.getList().get(sourceNum).getPath());
+                        //MainActivity.sendMessage(1, pageInterval);
+                    } else if (myPlayList.getList().get(sourceNum).isImage()) {
+                        AutoScrollViewPager pager = this.autoScrollViewPager.get();
+                        if (pager != null) {
+                            MainActivity.sendMessage(1, pageInterval);
+                        }
+                    }
+                    break;
+                case 1:// change view
+                    sourceNum++;
+                    if (sourceNum >= myPlayList.getList().size()) sourceNum = 0;
                     AutoScrollViewPager pager = this.autoScrollViewPager.get();
                     if (pager != null) {
                         myPager.getScroller().setScrollDurationFactor(1);
                         myPager.scrollOnce();
                         myPager.getScroller().setScrollDurationFactor(1);
-                        //MainActivity.sendMessage(pageInterval + pager.getScroller().getDuration());
+                        MainActivity.sendMessage(0, 0);
                     }
+
+                case 2:// play image
+
                 default:
                     break;
             }
@@ -281,8 +297,8 @@ public class MainActivity extends AppCompatActivity {
             if (id == R.id.Button_show) {
                 showData();
             } else if (id == R.id.Button_video) {
-                if (!isVideo) setVideo();
-                else switchToImage();
+                //if (!isVideo) setVideo();
+                //else switchToImage();
             } else if (id == R.id.Button_fadein) {
                 imageFadeIn();
             } else if (id == R.id.Button_moveright) {

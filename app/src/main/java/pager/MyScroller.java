@@ -10,7 +10,7 @@ import android.widget.Scroller;
  * @author <a href="http://www.trinea.cn" target="_blank">Trinea</a> 2014-3-2
  */
 public class MyScroller extends Scroller {
-    private int scrollSpeed = 10;
+    private int scrollSpeed = 8;
     // larger and slower
 
     private double scrollFactor = 1;
