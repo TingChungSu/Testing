@@ -1,5 +1,6 @@
 package com.example.test;
 
+import android.app.Presentation;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -23,18 +24,15 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 
 import myvideoview.*;
 import pager.*;
 
 public class MainActivity extends AppCompatActivity {
-    private static int pageInterval = 3000;
+    private static int pageInterval = 500;
     private int[] resourceID;
     private String[] picPath;
     private String[] videoPath;
@@ -47,36 +45,13 @@ public class MainActivity extends AppCompatActivity {
 
     public static PlayList myPlayList;
     public static int sourceNum;
+    private DisplayManager mDisplayManager;
+    private Display[] displays;
+    private SecondScreenPresentation secondScreenPresentation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sourceNum = 0;
-        picNum = 0;
-        resourceID = new int[]{R.drawable.pic1, R.drawable.pic2, R.drawable.pic3, R.drawable.pic4, R.drawable.pic5,
-                R.drawable.no2, R.drawable.no3, R.drawable.no4, R.drawable.no5};
-        picPath = new String[]{"/sdcard/Download/RivaGreen/to-01.jpg", "/sdcard/Download/RivaGreen/to-02.jpg",
-                "/sdcard/Download/RivaGreen/to-03.jpg", "/sdcard/Download/RivaGreen/to-04.jpg"};/*,
-                "/sdcard/Download/RivaGreen/to-05.jpg", "/sdcard/Download/RivaGreen/to-06.jpg",
-                "/sdcard/Download/RivaGreen/to-07.jpg", "/sdcard/Download/RivaGreen/to-08.jpg",
-                "/sdcard/Download/RivaGreen/to-09.jpg", "/sdcard/Download/RivaGreen/to-10.jpg",
-                "/sdcard/Download/RivaGreen/to-11.jpg", "/sdcard/Download/RivaGreen/to-12.jpg",
-                "/sdcard/Download/RivaGreen/to-13.jpg", "/sdcard/Download/RivaGreen/to-14.jpg"};*/
-        videoPath = new String[]{"/sdcard/Download/Demo_video_ACME/MUJI/muji01.avi", "/sdcard/Download/Demo_video_ACME/MUJI/muji02.avi"};
-
-        myPlayList = new PlayList();
-
-        for (String path : videoPath) {
-            SourceData data = new SourceData("video", path);
-            myPlayList.addToBot(data);
-        }
-
-        for (String path : picPath) {
-            SourceData data = new SourceData("image", path);
-            myPlayList.addToBot(data);
-        }
-
-
         // set full screen with no title
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.getWindow().setFlags(
@@ -84,6 +59,33 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        //set resource info
+        sourceNum = 0;
+        picNum = 0;
+        resourceID = new int[]{R.drawable.pic1, R.drawable.pic2, R.drawable.pic3, R.drawable.pic4, R.drawable.pic5,
+                R.drawable.no2, R.drawable.no3, R.drawable.no4, R.drawable.no5};
+        picPath = new String[]{"日本展用1280x320 to-01.jpg", "日本展用1280x320 to-02.jpg",
+                "日本展用1280x320 to-03.jpg", "日本展用1280x320 to-04.jpg",
+                "日本展用1280x320 to-05.jpg", "日本展用1280x320 to-06.jpg",
+                "日本展用1280x320 to-07.jpg", "日本展用1280x320 to-08.jpg",
+                "日本展用1280x320to-09.jpg", "日本展用1280x320to-10.jpg",
+                "日本展用1280x320to-11.jpg", "日本展用1280x320to-12.jpg",
+                "日本展用1280x320to-13.jpg", "日本展用1280x320to-14.jpg"};/**/
+        videoPath = new String[]{"/sdcard/Download/Demo video_ACME/MUJI/muji01_1280x320.avi", "/sdcard/Download/Demo video_ACME/MUJI/muji02_1280x320.avi"};
+
+        myPlayList = new PlayList();
+        for (String path : picPath) {
+            SourceData data = new SourceData("image", "/sdcard/Download/RivaGreen/" + path);
+            myPlayList.addToBot(data);
+        }
+        for (String path : videoPath) {
+            SourceData data = new SourceData("video", path);
+            myPlayList.addToBot(data);
+        }
+//
+        setupBlankPresentation();
+        if(isDualScreenAvilable())
+            secondScreenPresentation.show();
 
         isVideo = false;
         myImage = (ImageView) findViewById(R.id.myImageView);
@@ -96,6 +98,40 @@ public class MainActivity extends AppCompatActivity {
         myPager.setCurrentItem(0);
         myPager.setInterval(pageInterval);
         MainActivity.sendMessage(0, 0);
+    }
+
+    public boolean isDualScreenAvilable() {
+        DisplayManager dm = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+        Display[] logicDisplays = dm.getDisplays();
+        return logicDisplays.length > 0;
+    }
+
+    private void setupBlankPresentation() {
+        mDisplayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+        displays = mDisplayManager
+                .getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION);
+        if (displays.length != 0)
+            secondScreenPresentation = new SecondScreenPresentation(this, displays[0]);
+    }
+    public class SecondScreenPresentation extends Presentation {
+
+        public SecondScreenPresentation(Context outerContext, Display display) {
+            super(outerContext, display);
+            // TODO Auto-generated constructor stub
+
+/*
+        Intent activityIntent = new Intent(outerContext, Main2Activity.class);
+        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        outerContext.startActivity(activityIntent);
+*/
+        }
+        @Override
+        protected void onCreate(Bundle savedInstanceState)
+        {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main2);
+        }
+
     }
 
 
@@ -148,15 +184,15 @@ public class MainActivity extends AppCompatActivity {
     private void switchToVideo() {
         isVideo = true;
         myVideo.setVisibility(View.VISIBLE);
-        myPager.setVisibility(View.GONE);
-        myImage.setVisibility(View.GONE);
+        //myPager.setVisibility(View.GONE);
+        //myImage.setVisibility(View.GONE);
     }
 
     private void switchToPager() {
         isVideo = false;
         myVideo.setVisibility(View.GONE);
-        myPager.setVisibility(View.VISIBLE);
-        myImage.setVisibility(View.GONE);
+        //myPager.setVisibility(View.VISIBLE);
+        //myImage.setVisibility(View.GONE);
     }
 
     private void switchToImage() {
@@ -183,28 +219,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //myImage.setImageResource(resourceID[number++]);
                 Animation am2 = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_fadeout);
-                myImage.startAnimation(am2);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-        });
-        myImage.startAnimation(am);
-    }
-
-    private void imageMove() {
-        Animation am = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_midtoright);
-        am.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (picNum >= resourceID.length) picNum = 0;
-                myImage.setImageResource(resourceID[picNum++]);
-                Animation am2 = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_lefttomid);
                 myImage.startAnimation(am2);
             }
 

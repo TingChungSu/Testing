@@ -85,18 +85,16 @@
 
         <myvideoview.MyVideo
             android:id="@+id/myVideoView"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:visibility="gone" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/myImageView"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_weight="1"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
             android:src="@drawable/no1"
@@ -105,7 +103,6 @@
         <pager.AutoScrollViewPager
             android:id="@+id/myViewPager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_height="match_parent" />
     </TableRow>
 </RelativeLayout>

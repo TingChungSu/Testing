@@ -1,6 +1,8 @@
 package myvideoview;
 
 
+import com.google.gson.Gson;
+
 /**
  * Created by 鼎鈞 on 2016/6/23.
  * Download/RivaGreen/to-01.jpg ~ to-14.jpg
@@ -25,6 +27,12 @@ public class SourceData {
             this.strFileType = "image";
 
         this.StrPath = path;
+    }
+
+    public String toJson() {
+        Gson gson = new Gson();
+        String strJjson = gson.toJson(this);
+        return strJjson;
     }
 
     public boolean isVedio() {
